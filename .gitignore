@@ -327,3 +327,8 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/Icon.png
+/Icon100.png
+/Icon100.ico
+/Icon.pdn
+/Icon.ico
