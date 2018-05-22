@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Translate Helper", "Translate Helper\Translate Helper.csproj", "{167FE7CF-D060-46B6-A65F-75510F8184CE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{167FE7CF-D060-46B6-A65F-75510F8184CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{167FE7CF-D060-46B6-A65F-75510F8184CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{167FE7CF-D060-46B6-A65F-75510F8184CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{167FE7CF-D060-46B6-A65F-75510F8184CE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

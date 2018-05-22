@@ -1,0 +1,48 @@
+C:\Users\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\bin\Release\Translate Helper.exe.config
+C:\Users\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\bin\Release\Translate Helper.exe
+C:\Users\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\bin\Release\Translate Helper.pdb
+C:\Users\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate_Helper.TranslateHelper.resources
+C:\Users\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate_Helper.Properties.Resources.resources
+C:\Users\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.csproj.GenerateResource.Cache
+C:\Users\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.exe
+C:\Users\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.pdb
+C:\Users\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.csprojResolveAssemblyReference.cache
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\bin\Release\Translate Helper.exe.config
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.exe
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.pdb
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\bin\Release\Translate Helper.exe
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\bin\Release\Translate Helper.pdb
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.csprojResolveAssemblyReference.cache
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate_Helper.TranslateHelper.resources
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate_Helper.Properties.Resources.resources
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.csproj.GenerateResource.Cache
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\bin\Release\Translate Helper.exe.config
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.exe
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.pdb
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\bin\Release\Translate Helper.exe
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\bin\Release\Translate Helper.pdb
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.csprojResolveAssemblyReference.cache
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate_Helper.TranslateHelper.resources
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate_Helper.Properties.Resources.resources
+\\sc.local\Private\Homedir\johl1126\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.csproj.GenerateResource.Cache
+H:\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\bin\Release\Translate Helper.exe.config
+H:\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.exe
+H:\Documents\Visual Studio 2013\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.pdb
+C:\Users\johl1126\Documents\Visual Studio 2015\Projects\Translate Helper Radiant\Translate Helper\bin\Release\Translate Helper.exe.config
+C:\Users\johl1126\Documents\Visual Studio 2015\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.exe
+C:\Users\johl1126\Documents\Visual Studio 2015\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.pdb
+C:\Users\johl1126\Documents\Visual Studio 2015\Projects\Translate Helper Radiant\Translate Helper\bin\Release\Translate Helper.exe
+C:\Users\johl1126\Documents\Visual Studio 2015\Projects\Translate Helper Radiant\Translate Helper\bin\Release\Translate Helper.pdb
+C:\Users\johl1126\Documents\Visual Studio 2015\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.csprojResolveAssemblyReference.cache
+C:\Users\johl1126\Documents\Visual Studio 2015\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate_Helper.TranslateHelper.resources
+C:\Users\johl1126\Documents\Visual Studio 2015\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate_Helper.Properties.Resources.resources
+C:\Users\johl1126\Documents\Visual Studio 2015\Projects\Translate Helper Radiant\Translate Helper\obj\Release\Translate Helper.csproj.GenerateResource.Cache
+C:\Users\johl1126\Documents\Visual Studio 2017\Projects\Translate Helper\Translate Helper\bin\Release\Translate Helper.exe.config
+C:\Users\johl1126\Documents\Visual Studio 2017\Projects\Translate Helper\Translate Helper\bin\Release\Translate Helper.exe
+C:\Users\johl1126\Documents\Visual Studio 2017\Projects\Translate Helper\Translate Helper\bin\Release\Translate Helper.pdb
+C:\Users\johl1126\Documents\Visual Studio 2017\Projects\Translate Helper\Translate Helper\obj\Release\Translate_Helper.TranslateHelper.resources
+C:\Users\johl1126\Documents\Visual Studio 2017\Projects\Translate Helper\Translate Helper\obj\Release\Translate_Helper.Properties.Resources.resources
+C:\Users\johl1126\Documents\Visual Studio 2017\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.csproj.GenerateResource.cache
+C:\Users\johl1126\Documents\Visual Studio 2017\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.csproj.CoreCompileInputs.cache
+C:\Users\johl1126\Documents\Visual Studio 2017\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.exe
+C:\Users\johl1126\Documents\Visual Studio 2017\Projects\Translate Helper\Translate Helper\obj\Release\Translate Helper.pdb
