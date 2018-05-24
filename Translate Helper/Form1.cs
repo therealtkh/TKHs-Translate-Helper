@@ -1,6 +1,4 @@
-﻿// Latest update: 2018-05-22
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -45,9 +43,6 @@ namespace Translate_Helper
       {
          cb_input_encoding.SelectedIndex = 1;
          cb_output_encoding.SelectedIndex = 2;
-         allowNameTagEditing.Visible = false;
-         btn_addRow.Visible = false;
-         btn_delRow.Visible = false;
          btn_reset_tag.Enabled = false;
          btn_reset_tag_all.Enabled = false;
          cb_countBoth.Enabled = false;
@@ -91,7 +86,7 @@ namespace Translate_Helper
          dlg.InitialDirectory = m_lastFolder;
          if (dlg.ShowDialog() == DialogResult.OK)                        //If file is opened
          {
-            openFile(dlg.FileName, "org");                              //Open original file
+            openFile(dlg.FileName, "org");                               //Open original file
             writeLog("Finished work on the original file.");
          }
       }
@@ -104,7 +99,7 @@ namespace Translate_Helper
          dlg.Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*";
          if (dlg.ShowDialog() == DialogResult.OK)                        //If file is opened
          {
-            openFile(dlg.FileName, "trans");                            //Open translation file
+            openFile(dlg.FileName, "trans");                             //Open translation file
             writeLog("Finished work on the translation file.");
             haveSaved = true;
          }
@@ -132,8 +127,8 @@ namespace Translate_Helper
             tb_org.Text = filename;
             tb_trans.Text = "Translation file. This is probably a previous version of it.";
             mAllData.Clear();                                            //Always clear list in memory when opening new input file
-            FillList(filename, box);                                    //Fill list with original data.
-            FillAllData();                                              //Refresh datagridview with new data
+            FillList(filename, box);                                     //Fill list with original data.
+            FillAllData();                                               //Refresh datagridview with new data
             nrOfTags = countTags();
             writeLog("Imported nr of tags: " + nrOfTags.ToString());
             if (duplicationFound == true)
@@ -144,9 +139,6 @@ namespace Translate_Helper
             //Change a lot of layout things after opening original file
             btn_openTrans.Enabled = true;
             btn_save.Enabled = true;
-            //btn_addRow.Enabled = true;
-            //btn_delRow.Enabled = true;
-            allowNameTagEditing.Enabled = false;
             btn_next_item.Enabled = true;
             btn_prev_item.Enabled = true;
             btn_search_prev.Enabled = true;
@@ -154,21 +146,21 @@ namespace Translate_Helper
             tb_search.ReadOnly = false;
             btn_reset_tag.Enabled = true;
             btn_reset_tag_all.Enabled = true;
-                cb_countBoth.Enabled = true;
-                btn_export.Enabled = true;
-                cb_export_row_numbers.Enabled = true;
-                cb_showRowHeaders.Enabled = true;
+            cb_countBoth.Enabled = true;
+            btn_export.Enabled = true;
+            cb_export_row_numbers.Enabled = true;
+            cb_showRowHeaders.Enabled = true;
          }
          else if (box == "trans")
          {
             tb_trans.Text = filename;
             for (int i = 0; i < mAllData.Count - 1; i++)         //Clear all old translation fields first, in case other file was opened first
             {
-               mAllData[i].tagTrans = "";                     //Set (old) content to null, will be done regardless of if this is first or later opening of translation file
+               mAllData[i].tagTrans = "";                        //Set (old) content to null, will be done regardless of if this is first or later opening of translation file
             }
-            FillList(filename, box);                            //Fill list with translation data.
+            FillList(filename, box);                             //Fill list with translation data.
             
-            FillAllData();                                      //Fill datagrid with current list data
+            FillAllData();                                       //Fill datagrid with current list data
             //dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             //dataGridView1.Columns[0].Width = 2 * dataGridView1.Width / 10;
              //dataGridView1.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -183,11 +175,7 @@ namespace Translate_Helper
       //Updates the read/write 
       private void checkReadWrite()
       {
-         if (allowNameTagEditing.Checked == true)
-            dataGridView1.Columns[0].ReadOnly = false;                      //Tag name is readonly, can be changed
-         else
-            dataGridView1.Columns[0].ReadOnly = true;                       //Original tag value cannot be changed
-
+         dataGridView1.Columns[0].ReadOnly = true;                           //Original tag value cannot be changed
          dataGridView1.Columns[1].ReadOnly = true;                           //Tag Value is always readonly
          dataGridView1.Columns[2].ReadOnly = false;                          //Translation value can always be changed
       }
@@ -293,7 +281,6 @@ namespace Translate_Helper
       private void MatchColors()
       {
          for (int i = 0; i < mAllData.Count; i++)
-         //for (int i = 0; i < dataGridView1.Rows.Count; i++)
          {
             MatchRowColor(i);
          }
@@ -342,14 +329,12 @@ namespace Translate_Helper
          bool isTranslation = (box == "trans");
          try
          {
-
             // load translation document so we can edit it
             XmlDictionaryReaderQuotas quota = new XmlDictionaryReaderQuotas();
             quota.MaxNameTableCharCount = 500000;
             if (!isTranslation)
             {
                using (StreamReader sr = new StreamReader(FileName, inputEncoding))
-               //using (StreamReader sr = new StreamReader(FileName, System.Text.Encoding.ASCII))
                {
                   XmlDictionaryReader reader = JsonReaderWriterFactory.CreateJsonReader(sr.BaseStream, quota);
                   mXElement = XDocument.Load(reader);
@@ -359,7 +344,6 @@ namespace Translate_Helper
 
             // Always load into tags
             using (StreamReader sr = new StreamReader(FileName, inputEncoding))
-            //using (StreamReader sr = new StreamReader(FileName, System.Text.Encoding.ASCII))
             {
                XmlDictionaryReader reader = JsonReaderWriterFactory.CreateJsonReader(sr.BaseStream, quota);
                List<string> currentPath = new List<string>();
@@ -389,6 +373,7 @@ namespace Translate_Helper
                      string path = String.Join(".", currentPath.ToArray());
                      newItem.tagName = path;
                      newItem.tagValue = changeFromSpecial(reader.Value);               //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            
                      if (box == "org")
                      {
                         mAllData.Add(newItem);                               //Fill list with new item.
@@ -400,12 +385,14 @@ namespace Translate_Helper
                         tagIndex = mAllData.FindIndex(x => x.tagName.Equals(path));
                         if (tagIndex >= 0)                              //This means that item exists
                         {
-                            mAllData[tagIndex].tagTrans = changeFromSpecial(reader.Value);   //Add value to list in correct place. [Used to be 4]           !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                           mAllData[tagIndex].tagTrans = changeFromSpecial(reader.Value);   //Add value to list in correct place. [Used to be 4]           !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                           
                         }
                         else                                            //Tag do not exist in original, add only in translation kolumn
                         {
                            newItem.tagValue = "";                      //Tag did not exist, value has to be nothing!
                            newItem.tagTrans = changeFromSpecial(reader.Value);             //Item 3 is value. [Used to be 4]               !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                           
                            mAllData.Add(newItem);                       //Fill list with new item.
                         }
                      }
@@ -610,7 +597,7 @@ namespace Translate_Helper
             }
 
       }
-
+/*
       //This adds a new row to the bottom of the workspace, and highlights it.
       private void btn_addRow_Click(object sender, EventArgs e)
       {
@@ -633,7 +620,8 @@ namespace Translate_Helper
 
          dataGridView1.CellValueChanged += dataGridView1_CellValueChanged;   //Re-enable the event again
       }
-
+*/
+/*
       //This will remove a complete tag item with values.
       private void btn_delRow_Click(object sender, EventArgs e)
       {
@@ -654,7 +642,7 @@ namespace Translate_Helper
          }
          dataGridView1.CellValueChanged += dataGridView1_CellValueChanged;   //Re-enable the event again
       }
-
+*/
       //Do we want to change name on tags?
       private void checkBox1_CheckedChanged(object sender, EventArgs e)
       {
@@ -988,5 +976,6 @@ namespace Translate_Helper
         {
 
         }
-    }
+
+   }
 }

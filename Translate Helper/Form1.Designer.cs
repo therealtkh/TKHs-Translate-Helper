@@ -44,8 +44,6 @@
             this.lbl_translations_left = new System.Windows.Forms.Label();
             this.btn_prev_item = new System.Windows.Forms.Button();
             this.btn_next_item = new System.Windows.Forms.Button();
-            this.btn_delRow = new System.Windows.Forms.Button();
-            this.btn_addRow = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.btn_save = new System.Windows.Forms.Button();
             this.btn_openTrans = new System.Windows.Forms.Button();
@@ -58,7 +56,6 @@
             this.cb_showRowHeaders = new System.Windows.Forms.CheckBox();
             this.cb_export_row_numbers = new System.Windows.Forms.CheckBox();
             this.btn_export = new System.Windows.Forms.Button();
-            this.allowNameTagEditing = new System.Windows.Forms.CheckBox();
             this.chkbx_html = new System.Windows.Forms.CheckBox();
             this.lbl_encoding_write = new System.Windows.Forms.Label();
             this.lbl_encoding_read = new System.Windows.Forms.Label();
@@ -100,8 +97,6 @@
             this.tabPage1.Controls.Add(this.lbl_translations_left);
             this.tabPage1.Controls.Add(this.btn_prev_item);
             this.tabPage1.Controls.Add(this.btn_next_item);
-            this.tabPage1.Controls.Add(this.btn_delRow);
-            this.tabPage1.Controls.Add(this.btn_addRow);
             this.tabPage1.Controls.Add(this.dataGridView1);
             this.tabPage1.Controls.Add(this.btn_save);
             this.tabPage1.Controls.Add(this.btn_openTrans);
@@ -246,28 +241,6 @@
             this.btn_next_item.UseVisualStyleBackColor = true;
             this.btn_next_item.Click += new System.EventHandler(this.btn_next_item_Click);
             // 
-            // btn_delRow
-            // 
-            this.btn_delRow.Enabled = false;
-            this.btn_delRow.Location = new System.Drawing.Point(620, 6);
-            this.btn_delRow.Name = "btn_delRow";
-            this.btn_delRow.Size = new System.Drawing.Size(75, 23);
-            this.btn_delRow.TabIndex = 7;
-            this.btn_delRow.Text = "Delete Row";
-            this.btn_delRow.UseVisualStyleBackColor = true;
-            this.btn_delRow.Click += new System.EventHandler(this.btn_delRow_Click);
-            // 
-            // btn_addRow
-            // 
-            this.btn_addRow.Enabled = false;
-            this.btn_addRow.Location = new System.Drawing.Point(539, 6);
-            this.btn_addRow.Name = "btn_addRow";
-            this.btn_addRow.Size = new System.Drawing.Size(75, 23);
-            this.btn_addRow.TabIndex = 6;
-            this.btn_addRow.Text = "Add Row";
-            this.btn_addRow.UseVisualStyleBackColor = true;
-            this.btn_addRow.Click += new System.EventHandler(this.btn_addRow_Click);
-            // 
             // dataGridView1
             // 
             this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -361,7 +334,6 @@
             this.tabPage3.Controls.Add(this.cb_showRowHeaders);
             this.tabPage3.Controls.Add(this.cb_export_row_numbers);
             this.tabPage3.Controls.Add(this.btn_export);
-            this.tabPage3.Controls.Add(this.allowNameTagEditing);
             this.tabPage3.Controls.Add(this.chkbx_html);
             this.tabPage3.Controls.Add(this.lbl_encoding_write);
             this.tabPage3.Controls.Add(this.lbl_encoding_read);
@@ -408,17 +380,6 @@
             this.btn_export.Text = "Export to .txt";
             this.btn_export.UseVisualStyleBackColor = true;
             this.btn_export.Click += new System.EventHandler(this.btn_export_Click);
-            // 
-            // allowNameTagEditing
-            // 
-            this.allowNameTagEditing.AutoSize = true;
-            this.allowNameTagEditing.Enabled = false;
-            this.allowNameTagEditing.Location = new System.Drawing.Point(11, 135);
-            this.allowNameTagEditing.Name = "allowNameTagEditing";
-            this.allowNameTagEditing.Size = new System.Drawing.Size(132, 17);
-            this.allowNameTagEditing.TabIndex = 20;
-            this.allowNameTagEditing.Text = "Allow tag name editing";
-            this.allowNameTagEditing.UseVisualStyleBackColor = true;
             // 
             // chkbx_html
             // 
@@ -527,8 +488,6 @@
         private System.Windows.Forms.TextBox tb_org;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
-        private System.Windows.Forms.Button btn_delRow;
-        private System.Windows.Forms.Button btn_addRow;
         private System.Windows.Forms.Button btn_next_item;
         private System.Windows.Forms.Button btn_prev_item;
         private System.Windows.Forms.Label lbl_translations_left;
@@ -546,7 +505,6 @@
         private System.Windows.Forms.Button btn_reset_tag;
         private System.Windows.Forms.Button btn_reset_tag_all;
         private System.Windows.Forms.CheckBox cb_countBoth;
-        private System.Windows.Forms.CheckBox allowNameTagEditing;
         private System.Windows.Forms.CheckBox chkbx_html;
         private System.Windows.Forms.Button btn_export;
         private System.Windows.Forms.CheckBox cb_export_row_numbers;
