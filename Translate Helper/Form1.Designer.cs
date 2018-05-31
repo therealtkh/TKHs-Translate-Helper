@@ -327,7 +327,7 @@
             this.tb_log.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.tb_log.Size = new System.Drawing.Size(769, 414);
             this.tb_log.TabIndex = 0;
-            this.tb_log.Text = "Welcome to the Translate Helper, current version is alpha 0.6.2.";
+            this.tb_log.Text = "Welcome to the Translate Helper, current version is alpha 0.7.0";
             // 
             // tabPage3
             // 
@@ -443,7 +443,6 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             this.openFileDialog1.Filter = "\"JSON Files (*.json)|*.json|All Files (*.*)|*.*\"";
-            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
             // toolTip1
             // 
