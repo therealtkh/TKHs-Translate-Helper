@@ -8,20 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Xml;
-using System.Runtime.Serialization.Json;
-using System.Xml.Linq;
-using System.Xml.XPath;
+//using System.Runtime.Serialization;                       // Use with the old XML method - to be removed
+//using System.Xml;                                         // Use with the old XML method - to be removed
+//using System.Runtime.Serialization.Json;                  // Use with the old XML method - to be removed
+//using System.Xml.Linq;                                    // Use with the old XML method - to be removed
+//using System.Xml.XPath;                                   // Use with the old XML method - to be removed
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Translate_Helper
 {
     public partial class TranslateHelper : Form
     {
         List<TagString> mAllData = new List<TagString>();   // mAllData contains all data (tag+org+trans)
-        XDocument mXElement = null;                         // The json (or rather XML) document used for export
-        XmlNameTable mNameTable = null;                     
+        JObject output = new JObject();                     // A "virtual" JSON file - to be saved to file
         string m_lastFolder = "";                           // Remember where we opened a file, will be default for saving later
         bool haveSaved = true;                              // If user has not saved, give warning before exit application
         bool duplicationFound = false;                      // Should not happen, but who knows?
@@ -48,6 +48,7 @@ namespace Translate_Helper
             cb_countBoth.Enabled = false;
             btn_export.Enabled = false;
             cb_export_row_numbers.Enabled = false;
+            chkbx_html.Visible = false;                     // Suggestion to remove HTML export. Hidden until further notice.
 
             // Add a lot of tooltips
             toolTip1.SetToolTip(btn_openOrg, "Browse for original file, probably the English file.");
@@ -125,11 +126,11 @@ namespace Translate_Helper
             {
                 tb_org.Text = filename;
                 tb_trans.Text = "Translation file. This is probably a previous version of it.";
-                mAllData.Clear();                                            // Always clear list in memory when opening new input file
-                FillList(filename, box);                                     // Fill list with original data.
-                FillAllData();                                               // Refresh datagridview with new data
-                nrOfTags = CountTags();
-                writeLog("Imported nr of tags: " + nrOfTags.ToString());
+                mAllData.Clear();                                           // Always clear list in memory when opening new input file
+                FillList(filename, box);                                    // Fill list with original data.
+                FillAllData();                                              // Refresh datagridview with new data
+                nrOfTags = CountTags();                                     
+                writeLog("Imported nr of tags: " + nrOfTags.ToString());    // Mostly for debug purposes
                 if (duplicationFound == true)
                 {
                     System.Windows.Forms.MessageBox.Show("Duplicated tag(s) found, see log for more information.", "Translate Helper Information");
@@ -150,10 +151,10 @@ namespace Translate_Helper
                 cb_export_row_numbers.Enabled = true;
                 cb_showRowHeaders.Enabled = true;
             }
-            else if (box == "trans")
+            else if (box == "trans")                                            // Opening translation file
             {
                 tb_trans.Text = filename;
-                for (int i = 0; i < mAllData.Count - 1; i++)                    // Clear all old translation fields first, in case other file was opened first
+                for (int i = 0; i < mAllData.Count - 1; i++)                    // Clear all old translation fields first, in case some other file was opened before
                 {
                     mAllData[i].tagTrans = "";                                  // Set (old) content to null, will be done regardless of if this is first or later opening of translation file
                 }
@@ -313,6 +314,7 @@ namespace Translate_Helper
                }
         */
         //Check if first character in a string is a letter
+        // Probably obsolete now when json.net is used everywhere
         private bool IsLetter(char c)
         {
             return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
@@ -323,10 +325,11 @@ namespace Translate_Helper
         {
             try
             {
+
                 // Load translation document so we can edit it
-                XmlDictionaryReaderQuotas quota = new XmlDictionaryReaderQuotas();
+/*                XmlDictionaryReaderQuotas quota = new XmlDictionaryReaderQuotas();
                 quota.MaxNameTableCharCount = 1000000;
-                
+// Removed when json.net was used for saving as well                
                 if (box == "org")
                 {
                     using (StreamReader sr = new StreamReader(FileName, inputEncoding))
@@ -336,7 +339,7 @@ namespace Translate_Helper
                         mNameTable = reader.NameTable;
                     }
                 }
-                
+*/                
                 // Always load into tags
                 using (StreamReader sr = new StreamReader(FileName, inputEncoding))
                 {
@@ -352,11 +355,14 @@ namespace Translate_Helper
                         }
                         else if (reader.TokenType == JsonToken.PropertyName)        // PropertyName means a new "key", "tag" or "item"
                         {
+                            currentPath[pathDepth] = reader.Value.ToString();
+/*                          These rows were only needed for special naming when using the XML library, should not be needed with the new json.net library
                             string name = reader.Value.ToString();                  // This is the name of the key
                             if (!IsLetter(name[0]))                                     // If key begins with a number or special character (like #)...
                                 currentPath[pathDepth] = ("*[@item='" + name + "']");   // ...add a prefix. The prefix will not be saved.
                             else
                                 currentPath[pathDepth] = name;                      // Save the key name to the list. 
+*/
                         }
                         else if (reader.TokenType == JsonToken.EndObject)           // EndObject should mean '}'
                         {
@@ -378,16 +384,16 @@ namespace Translate_Helper
                             {
                                 int tagIndex = -1;                                              // This will sort translation according to original.
                                 tagIndex = mAllData.FindIndex(x => x.tagName.Equals(path));
-                                if (tagIndex >= 0)                                              //This means that item exists
+                                if (tagIndex >= 0)                                              // This means that item exists
                                 {
-                                    mAllData[tagIndex].tagTrans = reader.Value.ToString();      //Add value to list in correct place.
+                                    mAllData[tagIndex].tagTrans = reader.Value.ToString();      // Add value to list in correct place.
                                 }
-                                else                                            //Tag do not exist in original, add only in translation kolumn
+                                else                                                            // Tag do not exist in original, add only in translation kolumn
                                 {
-                                    newItem.tagValue = "";                      //Tag did not exist, value has to be nothing!
-                                    newItem.tagTrans = (reader.Value.ToString());             //Item 3 is value. [Used to be 4]               !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-                                    mAllData.Add(newItem);                       //Fill list with new item.
+                                    //newItem.tagValue = "";                                      // Tag did not exist, value has to be nothing!
+                                    //newItem.tagTrans = (reader.Value.ToString());             
+                                    //mAllData.Add(newItem);                                      // Fill list with new item anyway
+                                    writeLog("Not found or added, tag: [" + path + "] value: " + reader.Value.ToString());
                                 }
                             }
                         }
@@ -467,98 +473,124 @@ namespace Translate_Helper
         {
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*";
-            if (dlg.ShowDialog() == DialogResult.OK)                                //If filename and everything is ok to be saved...
+            if (dlg.ShowDialog() == DialogResult.OK)                                // If filename and everything is ok to be saved...
             {
-                SaveAs(dlg.FileName);                                               //Run the save file function
-                DialogResult dialogResult = MessageBox.Show("File saved, do you want to open it?\n\nThis will reload the grid with data\nfrom both original and the new file.", "Translate Helper Question", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes)                               //Ask user if the saved file should be opened
+                output = new JObject();
+                SaveAs(dlg.FileName);                                               // Run the save file function
+                DialogResult dialogResult = MessageBox.Show("File saved, do you want to open it?\n\n" +
+                    "This will reload the grid with data\nfrom both original and the new file.", "Translate Helper Question", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)                               // Ask user if the saved file should be opened
                 {
-                    openFile(tb_org.Text, "org");                                   //Open original file again
+                    openFile(tb_org.Text, "org");                                   // Open original file again
                     writeLog("Opened Original file again.");
-                    openFile(dlg.FileName, "trans");                                //Open translation file again (using the new file)
+                    openFile(dlg.FileName, "trans");                                // Open translation file again (using the new file)
                     writeLog("Opened the new translation file.");
                 }
-                haveSaved = true;                                                   //File saved, value = true
+                haveSaved = true;                                                   // File saved, value = true
             }
         }
 
         //The function to save all data to a new file.
         private void SaveAs(string newFilename)
         {
-            XmlNamespaceManager manager = new XmlNamespaceManager(mNameTable);              // I don't know exactly...
-            manager.AddNamespace("a", manager.DefaultNamespace);                            // how this works.
-
-            using (StreamWriter wr = new StreamWriter(newFilename, false, outputEncoding)) 
+            for (int i = 0; i < mAllData.Count; i++)
             {
-                for (int i = 0; i < mAllData.Count; i++)
+                if (mAllData[i].tagName != "")                            // Only save rows with both name and value
+                    AddProperty(mAllData[i].tagName, mAllData[i].tagTrans);
+                else                                                                                    // Might happen if a tag is removed in a new file...
+                    writeLog("mAllData[" + i.ToString() + "] was empty, line not added.");              // ...then "value" will be blank, but not "name" and "trans"...
+            }                                                                                           // ...so row should not be saved
+
+            var jsonFile = new JsonSerializer();
+            using (StreamWriter file = File.CreateText(newFilename))
+            {
+                using (JsonTextWriter writer = new JsonTextWriter(file))
                 {
-                    string path = mAllData[i].tagName;                                      // Input path as xxx.yyy.zzz or similar
-                    if (path != "")
-                    {
-                        string xPath = "//" + path.Replace('.', '/');                       // Change path to xPath structure
-                        XElement element = mXElement.XPathSelectElement(xPath, manager);    // New element according to xPath
-                        string raw = mAllData[i].tagTrans;                                  // Used to be ChangeToSpecial
-                        string content = isHtml ? TagString.myHTMLconverter(raw) : raw;     // If HTML output is selected, convert data to HTML
-                        if (element != null)
-                        {
-                            element.Value = content;  
-                        }
-                        else
-                        {
-                            writeLog(content);                                              // This should hopefully never happen
-                        }
-                    }
+                    jsonFile.Formatting = Newtonsoft.Json.Formatting.Indented;
+                    jsonFile.Serialize(writer, output);      
+                    writer.Flush();
                 }
-                XmlDictionaryWriter writer = JsonReaderWriterFactory.CreateJsonWriter(wr.BaseStream, outputEncoding, true, true, "   ");        
-                mXElement.Save(writer);
-                writer.Flush();
-
-// This is old stuff, can probably be removed...
-/* --------------------
-                
-                      //XmlDictionaryWriter writer = JsonReaderWriterFactory.CreateJsonWriter(wr.BaseStream);
-                      wr.WriteLine("{");                                                  //Start tag
-                int currentTag = 0;                                                 //Keep track on which tag we're working on
-                nrOfTags = CountTags();                                             //Count tags in mAllData
-                writeLog("Starting export, nr of tags: " + nrOfTags.ToString());    //Print number of tags to export in log
-
-                for (int i = 0; i < mAllData.Count; i++)
-                {
-                   string path = mAllData[i].tagName;
-                   if (path != "")
-                   {
-                      string xPath = "//" + path.Replace('.', '/');
-                      XAttribute attribute = mXElement.Attribute(xPath);
-
-                      currentTag++;
-                      //fix this temporary solution with encoding....
-                      //string printStr;
-
-                      if (currentTag != nrOfTags)
-                      {
-                         if (isHtml)
-                            wr.WriteLine("    " + mAllData[i].PrintJsonRowTransHTML());  //Print row with HTML formatting
-                         else
-                            wr.WriteLine("    " + mAllData[i].PrintJsonRowTrans());      //Print row according to JSON format    
-                      }
-                      else
-                          if (isHtml)
-                         wr.WriteLine("    " + mAllData[i].PrintLastJsonRowTransHTML());  //Print row with HTML formatting
-                      else
-                         wr.WriteLine("    " + mAllData[i].PrintLastJsonRowTrans());  //Print last row according to JSON format (without the comma)   
-
-                      if (currentTag == nrOfTags)                             //If all tags are saved, jump out of the foor loop
-                         break;                                              //If there are several empty rows at the end they will be removed
-                   }
-                   else
-                      wr.WriteLine("");                                       //Print blank row
-                }
-                wr.WriteLine("}");                                              //End tag
---------------------*/
             }
+
+            /* THE PREVIOUS METHOD
+                        XmlNamespaceManager manager = new XmlNamespaceManager(mNameTable);              // I don't know exactly...
+                        manager.AddNamespace("a", manager.DefaultNamespace);                            // how this works.
+
+                        using (StreamWriter wr = new StreamWriter(newFilename, false, outputEncoding)) 
+                        {
+                            for (int i = 0; i < mAllData.Count; i++)
+                            {
+                                string path = mAllData[i].tagName;                                      // Input path as xxx.yyy.zzz or similar
+                                if (path != "")
+                                {
+                                    string xPath = "//" + path.Replace('.', '/');                       // Change path to xPath structure
+                                    XElement element = mXElement.XPathSelectElement(xPath, manager);    // New element according to xPath
+                                    string raw = mAllData[i].tagTrans;                                  // Used to be ChangeToSpecial
+                                    string content = isHtml ? TagString.myHTMLconverter(raw) : raw;     // If HTML output is selected, convert data to HTML
+                                    if (element != null)
+                                    {
+                                        element.Value = content;  
+                                    }
+                                    else
+                                    {
+                                        writeLog(content);                                              // This should hopefully never happen
+                                    }
+                                }
+                            }
+                            XmlDictionaryWriter writer = JsonReaderWriterFactory.CreateJsonWriter(wr.BaseStream, outputEncoding, true, true, "   ");        
+                            mXElement.Save(writer);
+                            writer.Flush();
+                        }
+            */
             writeLog("Saved to file: " + newFilename);
         }
 
+        // This function adds the row of "path.path.path.key" with "value" to the global output object
+        private void AddProperty(string path, string value)
+        {
+            List<string> pathList = new List<string>();
+            pathList = path.Split('.').ToList();
+            string searchPath = "";
+            string addPath = "";
+
+            // Result of a few trial/errors, it looks strange but works. Can probably be made a bit cleaner...
+            for (int i = 0; i < pathList.Count; i++)                        // Traverse through the list of items (the full path)
+            {
+                if (i == 0)
+                {
+                    searchPath = pathList[i];                               // For root level, only update search path
+                }
+                else
+                {
+                    searchPath = searchPath + "." + pathList[i];            // Add next item we we get aaa.bbb.ccc 
+                    if (i == pathList.Count - 1)                            // Last item in list = key value
+                    {
+                        addPath = addPath + "." + pathList[i - 1];          // addPath should always be previous value...
+                    }
+                    else
+                    {
+                        if (i > 1)
+                            addPath = addPath + "." + pathList[i - 1];
+                        else
+                            addPath = pathList[i - 1];                      // ...except for when i == 0 or 1
+                    }
+                }
+
+                if (output.SelectToken(searchPath) == null)                                     // Means not found - [i] must be added
+                {
+                    JObject tmpObj = output.SelectToken(addPath) as JObject;                    // Used to add a new key-pair or group
+                    if (i == pathList.Count - 1)                                                // Last value in pathList is the key name
+                    {
+                        string content = isHtml ? TagString.myHTMLconverter(value) : value;     // If HTML output is selected, convert data to HTML
+                        tmpObj.Add(new JProperty(pathList[i], content));                        // Add tag with its value
+                    }
+                    else
+                    {
+                        tmpObj.Add(new JProperty(pathList[i], new JObject()));                  // Add new empty property (a new group)
+                    }
+                }                                                                               
+            }
+        }
 
         //Run this to adjust column after new files are loaded. Most could be set from design view.
         private void AdjustColumns()
