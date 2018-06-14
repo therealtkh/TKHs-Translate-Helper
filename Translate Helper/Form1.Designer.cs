@@ -327,7 +327,7 @@
             this.tb_log.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.tb_log.Size = new System.Drawing.Size(769, 414);
             this.tb_log.TabIndex = 0;
-            this.tb_log.Text = "Welcome to the Translate Helper, current version is alpha 0.7.1";
+            this.tb_log.Text = "Welcome to the Translate Helper, current version is alpha 0.7.2";
             // 
             // tabPage3
             // 

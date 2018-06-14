@@ -15,6 +15,7 @@ using System.IO;
 //using System.Xml.XPath;                                   // Use with the old XML method - to be removed
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace Translate_Helper
 {
@@ -22,10 +23,9 @@ namespace Translate_Helper
     {
         List<TagString> mAllData = new List<TagString>();   // mAllData contains all data (tag+org+trans)
         JObject output = new JObject();                     // A "virtual" JSON file - to be saved to file
-        string m_lastFolder = "";                           // Remember where we opened a file, will be default for saving later
+        string lastFolder = "";                             // Remember where we opened a file, will be default for saving later
         bool haveSaved = true;                              // If user has not saved, give warning before exit application
-        bool duplicationFound = false;                      // Should not happen, but who knows?
-        int nrOfTags = 0;                                   // Keeps track of how many tags we have
+        bool translationNotFound = false;                   // In case a tag is removed in a newer file
         int search_column = 1;                              // Default search column (org)
         int current_selected = 0;                           // This part is for the find-next function
         int translations_orange_left = 0;                   // Keeps track of how many orange lines are left
@@ -84,7 +84,7 @@ namespace Translate_Helper
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*";  // .json or All Files
-            dlg.InitialDirectory = m_lastFolder;
+            dlg.InitialDirectory = lastFolder;
             if (dlg.ShowDialog() == DialogResult.OK)                        
             {
                 openFile(dlg.FileName, "org");                              // Open original file
@@ -96,7 +96,7 @@ namespace Translate_Helper
         private void btn_openTrans_Click(object sender, EventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
-            dlg.InitialDirectory = m_lastFolder;
+            dlg.InitialDirectory = lastFolder;
             dlg.Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*";  // .json or All Files
             if (dlg.ShowDialog() == DialogResult.OK)                        // If file is opened
             {
@@ -109,7 +109,7 @@ namespace Translate_Helper
         // Used for open_org, open_trans and after file_saved, send box = "org" or "trans" to select original or translation mode
         private void openFile(string filename, string box)
         {
-            m_lastFolder = Path.GetFullPath(filename);                          // Remember folder path (working folder)
+            lastFolder = Path.GetFullPath(filename);                          // Remember folder path (working folder)
 
             dataGridView1.CellValueChanged -= dataGridView1_CellValueChanged;   // Disable the changed value event while opening a file
             if (dataGridView1.DataSource != null)                               // Disable auto-size when opening another file, this saves a lot of time
@@ -127,15 +127,15 @@ namespace Translate_Helper
                 tb_org.Text = filename;
                 tb_trans.Text = "Translation file. This is probably a previous version of it.";
                 mAllData.Clear();                                           // Always clear list in memory when opening new input file
-                FillList(filename, box);                                    // Fill list with original data.
+                FillList(filename, box);                                    // Fill mAllData with original data
                 FillAllData();                                              // Refresh datagridview with new data
-                nrOfTags = CountTags();                                     
-                writeLog("Imported nr of tags: " + nrOfTags.ToString());    // Mostly for debug purposes
-                if (duplicationFound == true)
+                writeLog("Imported nr of tags: " + CountTags().ToString()); // Mostly for debug purposes
+                if (SearchForDuplicates() == true)
                 {
-                    System.Windows.Forms.MessageBox.Show("Duplicated tag(s) found, see log for more information.", "Translate Helper Information");
-                    duplicationFound = false;
+                    System.Windows.Forms.MessageBox.Show("Duplicate tag(s) found, see log for more information.", "Translate Helper Information");
                 }
+                writeLog("Finished search for duplicates.");
+
                 // Change a lot of layout things after opening original file
                 btn_openTrans.Enabled = true;
                 btn_save.Enabled = true;
@@ -165,8 +165,12 @@ namespace Translate_Helper
                 // dataGridView1.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 // dataGridView1.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 // dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+                if (translationNotFound == true)
+                {
+                    System.Windows.Forms.MessageBox.Show("Missing tag(s) in original file, tag(s) not added! See log for more information.", "Translate Helper Information");
+                    translationNotFound = false;
+                }
             }
-
             dataGridView1.CellValueChanged += dataGridView1_CellValueChanged;   // Enable the changed value event while opening a file
         }
 
@@ -214,6 +218,7 @@ namespace Translate_Helper
             MatchRowColor(changedRow);
         }
 
+        // After several updates, this function can probably be re-written as the tagName is always a value these days
         // When value is updated in dataGridView, run this to refresh colors.
         // Matches up colors in dataGridView according to:
         // White = Value is different, probably translated and ok.
@@ -221,45 +226,45 @@ namespace Translate_Helper
         // Orange = Value is missing, update required!
         private void MatchRowColor(int row)
         {
-            if (string.IsNullOrEmpty(mAllData[row].tagName) == false && mAllData[row].tagValue == mAllData[row].tagTrans)  // If the change turned equal
-            {
-                if (dataGridView1.Rows[row].DefaultCellStyle.BackColor == Color.Orange) //This is if it had a previous value
+            if (string.IsNullOrEmpty(mAllData[row].tagName) == false && mAllData[row].tagValue == mAllData[row].tagTrans)
+            {                                                                                   // If the change turned equal
+                if (dataGridView1.Rows[row].DefaultCellStyle.BackColor == Color.Orange)         // This is if it had a previous value
                 {
                     translations_orange_left--;
                 }
-                dataGridView1.Rows[row].DefaultCellStyle.BackColor = Color.Yellow; //If values are the same - Yellow
+                dataGridView1.Rows[row].DefaultCellStyle.BackColor = Color.Yellow;              // If values are the same - Yellow
                 translations_yellow_left++;
             }
             else if (string.IsNullOrEmpty(mAllData[row].tagName) == false &&
-                    (string.IsNullOrEmpty(mAllData[row].tagValue) || string.IsNullOrEmpty(mAllData[row].tagTrans))) // not equal, but one of them empty
-            {
-                if (dataGridView1.Rows[row].DefaultCellStyle.BackColor != Color.Orange) // if it wasn't already orange
+                    (string.IsNullOrEmpty(mAllData[row].tagValue) || string.IsNullOrEmpty(mAllData[row].tagTrans)))
+            {                                                                                   // Not equal, but one of them empty
+                if (dataGridView1.Rows[row].DefaultCellStyle.BackColor != Color.Orange)         // If it wasn't already orange
                 {
                     translations_orange_left++;
-                    if (dataGridView1.Rows[row].DefaultCellStyle.BackColor == Color.Yellow)  // if it was yellow but not any longer
+                    if (dataGridView1.Rows[row].DefaultCellStyle.BackColor == Color.Yellow)     // If it was yellow but not any longer
                         translations_yellow_left--;
                 }
-                dataGridView1.Rows[row].DefaultCellStyle.BackColor = Color.Orange; //If any value is different - orange
+                dataGridView1.Rows[row].DefaultCellStyle.BackColor = Color.Orange;              // If any value is different - orange
             }
-            else if (string.IsNullOrEmpty(mAllData[row].tagName) == false && mAllData[row].tagValue != mAllData[row].tagTrans) // simply not equal
-            {
-                if (dataGridView1.Rows[row].DefaultCellStyle.BackColor == Color.Orange) // if it was orange before turning white
+            else if (string.IsNullOrEmpty(mAllData[row].tagName) == false && mAllData[row].tagValue != mAllData[row].tagTrans)
+            {                                                                                   // Simply not equal
+                if (dataGridView1.Rows[row].DefaultCellStyle.BackColor == Color.Orange)         // If it was orange before turning white
                 {
                     translations_orange_left--;
                 }
-                else if (dataGridView1.Rows[row].DefaultCellStyle.BackColor == Color.Yellow) // if it was yellow before turning white
+                else if (dataGridView1.Rows[row].DefaultCellStyle.BackColor == Color.Yellow)    // If it was yellow before turning white
                 {
                     translations_yellow_left--;
                 }
-                dataGridView1.Rows[row].DefaultCellStyle.BackColor = Color.White; //If different values - White
+                dataGridView1.Rows[row].DefaultCellStyle.BackColor = Color.White;               //If different values - White
             }
-            else if (mAllData[row].tagName == "" && mAllData[row].tagValue == "" && mAllData[row].tagTrans == "") // should not happen any longer?
-            {
+            else if (mAllData[row].tagName == "" && mAllData[row].tagValue == "" && mAllData[row].tagTrans == "")
+            {                                                                                   // should not happen any longer?
                 if (dataGridView1.Rows[row].DefaultCellStyle.BackColor == Color.Orange)
                 {
                     translations_orange_left--;
                 }
-                dataGridView1.Rows[row].DefaultCellStyle.BackColor = Color.White; //If all three values are blank, set white color
+                dataGridView1.Rows[row].DefaultCellStyle.BackColor = Color.White;               //If all three values are blank, set white color
             }
 
             if (cb_countBoth.Checked == true)
@@ -394,6 +399,7 @@ namespace Translate_Helper
                                     //newItem.tagTrans = (reader.Value.ToString());             
                                     //mAllData.Add(newItem);                                      // Fill list with new item anyway
                                     writeLog("Not found or added, tag: [" + path + "] value: " + reader.Value.ToString());
+                                    translationNotFound = true;
                                 }
                             }
                         }
@@ -497,9 +503,9 @@ namespace Translate_Helper
             {
                 if (mAllData[i].tagName != "")                            // Only save rows with both name and value
                     AddProperty(mAllData[i].tagName, mAllData[i].tagTrans);
-                else                                                                                    // Might happen if a tag is removed in a new file...
-                    writeLog("mAllData[" + i.ToString() + "] was empty, line not added.");              // ...then "value" will be blank, but not "name" and "trans"...
-            }                                                                                           // ...so row should not be saved
+                else                                                                                    
+                    writeLog("mAllData[" + i.ToString() + "] was empty, line not added.");              // Should not happen...
+            }                                                                                           
 
             var jsonFile = new JsonSerializer();
             using (StreamWriter file = File.CreateText(newFilename))
@@ -592,13 +598,10 @@ namespace Translate_Helper
             }
         }
 
-        //Run this to adjust column after new files are loaded. Most could be set from design view.
+        // Run this to adjust column after new files are loaded. Most could be set from design view.
         private void AdjustColumns()
         {
             dataGridView1.Columns[0].Width = 2 * dataGridView1.Width / 10;
-            //dataGridView1.Columns[1].Width = 4 * dataGridView1.Width / 10;
-            //dataGridView1.Columns[2].Width = 4 * dataGridView1.Width / 10;
-            //dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             dataGridView1.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -612,7 +615,6 @@ namespace Translate_Helper
             {
                 dataGridView1.Rows[i].HeaderCell.Value = String.Format("{0}", i + 1);
             }
-
         }
 
         // Used to warn the user of unsaved work
@@ -627,52 +629,33 @@ namespace Translate_Helper
             }
         }
 
-// Osolete functions
-/* ----------------
+        // Should not be needed, and takes a bit of time. Roughly 0.7 seconds for 7500 tags
         // Search through the tags for a duplicate (true means a duplicate found)
-        private bool SearchForDuplicate(string tagName)
+        private bool SearchForDuplicates()
         {
-            int count = 0;                              //Number of occurances of tagName in original file
-            for (int i = 0; i < mAllData.Count(); i++)
+            bool duplicate = false;                              // Number of occurances of tagName in original file
+            string tmpStr;
+            for (int i = 0; i < mAllData.Count() - 1; i++)
             {
-                if (mAllData[i].tagName == tagName)      //see if new tag name already exists in mAllData
-                    count++;
-            }
-
-            if (count > 0)                              // count > 0 means that it's already in the mAllData list
-                return true;
-
-            return false;
-        }
-
-        //Improved reading algorithm to be able to manage apostrophes within text. 
-        private string[] SplitRow(string line)
-        {
-            string[] strSplit = line.Split('"');                //Split line on all apostrophes (there should be 4 on a normal row, but perhaps more)
-            string[] returnString;
-
-            if (strSplit.Length >= 4)                           //A row with valid content
-            {
-                returnString = new string[2];                   //Length = 2 in returnstring for content rows
-                returnString[0] = strSplit[1];                  //Index 0 has tag name, index 1 has data (value)
-                for (int i = 3; i < strSplit.Length - 1; i++)   //Value begins at index 3
+                tmpStr = mAllData[i].tagName;
+                for (int j = i+1; j < mAllData.Count(); j++)
                 {
-                    returnString[1] += strSplit[i];             //Rebuild the rest of the line if it contains any "
-                    if (i != strSplit.Length - 2)               //Don't want anything after last apostrophe, that means after lenght - 2
+                    if (mAllData[j].tagName == tmpStr)          // See if new tag name already exists in mAllData
                     {
-                        returnString[1] += '"';                 //Add apostrophe if row had more than 4 in total
+                        duplicate = true;
+                        writeLog("Duplicates on rows " + (i + 1).ToString() + " and " + (j + 1).ToString() + " - " + mAllData[i].tagName);
                     }
                 }
             }
-            else
-                returnString = new string[1];                   //No valid content, return smaller array in that case
-            return returnString;
+
+            return duplicate;
         }
---------------*/
+
         //Count the number of tags in the mAllData list
         private int CountTags()
         {
-            return mAllData.Where(x => x.tagName != "").ToList().Count();    // Return number of lines that are not ""
+            return mAllData.Count;
+            //return mAllData.Where(x => x.tagName != "").ToList().Count();    // Return number of lines that are not ""
         }
 
         // Will try to locate the next "non-white" item. That means, missing or same translation
@@ -736,24 +719,24 @@ namespace Translate_Helper
         // Search for next occurance of what is written in the search textbox
         private void btn_search_next_Click(object sender, EventArgs e)
         {
-            if (tb_search.Text != "")                                           // Only start search if anything is written
+            if (tb_search.Text != "")                                                   // Only start search if anything is written
             {
                 // Used to have "i <= mAllData.Count - 1", but changed it together with the i-checks to be able to search forward from last row...
-                for (int i = current_selected + 1; i <= mAllData.Count; i++)    // Run to end of dataset length or when "run" is set to false (match found)
+                for (int i = current_selected + 1; i <= mAllData.Count; i++)            // Run to end of dataset length or when "run" is set to false (match found)
                 {
-                    if (i <= mAllData.Count - 1 && search_result(i, search_column))   // If result is found, end loop (search)
+                    if (i <= mAllData.Count - 1 && search_result(i, search_column))     // If result is found, end loop (search)
                         break;
-                    if (i == mAllData.Count - 1)                                // Reached end with nothing found
+                    if (i == mAllData.Count - 1)                                        // Reached end with nothing found
                     {
                         DialogResult dialogResult = MessageBox.Show("Reached end of data, do you want to continue from top?", "Translate Helper Question", MessageBoxButtons.YesNo);
                         if (dialogResult == DialogResult.Yes)
                         {
-                            current_selected = -1;                              // Start position where to begin next search
-                            btn_search_next_Click(sender, e);                   // Call function from within function, ok..?
+                            current_selected = -1;                                      // Start position where to begin next search
+                            btn_search_next_Click(sender, e);                           // Call function from within function, ok..?
                         }
                         else if (dialogResult == DialogResult.No)
                         {
-                            current_selected = dataGridView1.CurrentRow.Index;   // If clicked yes before, this must be changed back to where we are
+                            current_selected = dataGridView1.CurrentRow.Index;          // If clicked yes before, this must be changed back to where we are
                         }
                     }
                 }
@@ -793,7 +776,7 @@ namespace Translate_Helper
                         }
                         else if (dialogResult == DialogResult.No)
                         {
-                            current_selected = dataGridView1.CurrentRow.Index;  //If clicked yes before, this must be changed back to where we are
+                            current_selected = dataGridView1.CurrentRow.Index;  // If clicked yes before, this must be changed back to where we are
                         }
                     }
                 }
